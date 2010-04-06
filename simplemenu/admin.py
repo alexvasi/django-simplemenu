@@ -10,11 +10,15 @@ from simplemenu.forms import MenuItemForm
 
 class MenuItemAdmin(admin.ModelAdmin):
     form = MenuItemForm
-    list_display = ('name', 'move', 'page')
+    list_display = ('item_name', 'move', 'page')
 
     def save_model(self, request, obj, form, change):
         obj.page = form.selected_page()
         obj.save()
+
+    def item_name(self, obj):
+        # just to forbid to sort by name
+        return obj.name
 
     def page(self, obj):
         return obj.page.name()
@@ -23,14 +27,10 @@ class MenuItemAdmin(admin.ModelAdmin):
         button = '<a href="%s"><img src="%simg/admin/arrow-%s.gif" /> %s</a>'
         prefix = settings.ADMIN_MEDIA_PREFIX
         
-        html = ""
-        if not obj.is_first():
-            link = '%d/move_up/' % obj.pk
-            html += button % (link, prefix, 'up', 'up')
-        if not obj.is_last():
-            if html: html += " | "
-            link = '%d/move_down/' % obj.pk
-            html += button % (link, prefix, 'down', 'down')
+        link = '%d/move_up/' % obj.pk
+        html = button % (link, prefix, 'up', 'up') + " | "
+        link = '%d/move_down/' % obj.pk
+        html += button % (link, prefix, 'down', 'down')
         return html
     move.allow_tags = True
 
