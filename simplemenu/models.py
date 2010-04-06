@@ -39,19 +39,14 @@ class MenuItem(models.Model):
             return reverse(self.urlstr)
 
     def get_page(self):
-        p = self.urlobj if self.urlobj else self.urlstr
-        return PageWrapper(p)
+        return PageWrapper(self.urlstr or self.urlobj)
 
     def set_page(self, urlobj_or_str):
-        if isinstance(urlobj_or_str, PageWrapper):
-            urlobj_or_str = urlobj_or_str.wrappee
-        
-        if isinstance(urlobj_or_str, types.StringTypes):
-            self.urlobj = None
-            self.urlstr = urlobj_or_str
-        else:
-            self.urlobj = urlobj_or_str
-            self.urlstr = str()
+        p = urlobj_or_str
+        if not isinstance(urlobj_or_str, PageWrapper):
+            p = PageWrapper(urlobj_or_str)
+        self.urlobj = p.urlobj
+        self.urlstr = p.urlstr
 
     page = property(get_page, set_page)
 

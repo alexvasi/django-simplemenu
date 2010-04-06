@@ -10,37 +10,40 @@ def register(*args):
     registry.extend(args)
 
 class PageWrapper(object):
-    def __init__(self, obj):
-        self.wrappee = obj
+    def __init__(self, urlobj_or_str):
+        if isinstance(urlobj_or_str, types.StringTypes):
+            self.urlobj = None
+            self.urlstr = urlobj_or_str
+        else:
+            self.urlobj = urlobj_or_str
+            self.urlstr = str()
 
     def name(self):
-        if isinstance(self.wrappee, types.StringTypes):
-            if "/" in self.wrappee:
-                name = self.wrappee
-            else:
-                name = self.wrappee.rsplit('.', 1)[-1]
-                name = name.replace("_", " ").capitalize()
+        if self.urlobj:
+            name = unicode(self.urlobj)
+        elif "/" in self.urlstr:
+            name = self.urlstr
         else:
-            name = unicode(self.wrappee)
+            name = self.urlstr.rsplit('.', 1)[-1]
+            name = name.replace("_", " ").capitalize()
         return name
 
     def url(self):
-        if isinstance(self.wrappee, types.StringTypes):
-            if "/" in self.wrappee:
-                url = self.wrappee
-            else:
-                url = reverse(self.wrappee)
+        if self.urlobj:
+            url = self.urlobj.get_absolute_url()
+        elif "/" in self.urlstr:
+            url = self.urlstr
         else:
-            url = self.wrappee.get_absolute_url()
+            url = reverse(self.urlstr)
         return url
 
     def strkey(self):
-        if isinstance(self.wrappee, types.StringTypes):
-            return self.wrappee
+        if self.urlobj:
+            return "%s.%s.pk%s" % (self.urlobj.__module__,
+                                   self.urlobj.__class__.__name__,
+                                   self.urlobj.id)
         else:
-            return "%s.%s.pk%s" % (self.wrappee.__module__,
-                                   self.wrappee.__class__.__name__,
-                                   self.wrappee.id)
+            return self.urlstr
 
 def get_registered_pages():
     pages = []
