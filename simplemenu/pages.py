@@ -10,16 +10,19 @@ def register(*args):
     registry.extend(args)
 
 class PageWrapper(object):
-    def __init__(self, urlobj_or_str):
+    def __init__(self, urlobj_or_str, name=None):
         if isinstance(urlobj_or_str, types.StringTypes):
             self.urlobj = None
             self.urlstr = urlobj_or_str
         else:
             self.urlobj = urlobj_or_str
             self.urlstr = str()
+        self._name = name
 
     def name(self):
-        if self.urlobj:
+        if self._name:
+            name = self._name
+        elif self.urlobj:
             name = unicode(self.urlobj)
         elif "/" in self.urlstr:
             name = self.urlstr
@@ -52,5 +55,8 @@ def get_registered_pages():
             # evaluating QuerySet objects by iteration
             pages.extend(map(PageWrapper, reg))
         else:
-            pages.append(PageWrapper(reg))
+            name = None
+            if isinstance(reg, types.TupleType):
+                reg, name = reg
+            pages.append(PageWrapper(reg, name))
     return pages

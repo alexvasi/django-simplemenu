@@ -81,3 +81,15 @@ class RegistryTests(TestCase):
         self.assertEqual(p[1].name(), 'item2')
         self.assertEqual(p[1].url(), '/item2/')
         self.assert_(p[1].strkey().endswith('simplemenu.models.MenuItem.pk2'))
+
+    def test_named_items(self):
+        pages.register('/url/',
+                       ('/url/', 'Url name'),
+                       'simplemenu.tests.phony_view',
+                       ('simplemenu.tests.phony_view', 'PHONY NAME'))
+        p = pages.get_registered_pages()
+        self.assertEqual(len(p), 4)
+        self.assertEqual(p[0].name(), '/url/')
+        self.assertEqual(p[1].name(), 'Url name')
+        self.assertEqual(p[2].name(), 'Phony view')
+        self.assertEqual(p[3].name(), 'PHONY NAME')
