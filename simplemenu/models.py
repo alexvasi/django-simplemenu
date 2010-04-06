@@ -6,7 +6,7 @@ from simplemenu.pages import PageWrapper
 
 class MenuItem(models.Model):
     name = models.CharField(max_length=64)
-    rank = models.SmallIntegerField(unique=True)
+    rank = models.SmallIntegerField(unique=True, db_index=True)
 
     urlobj_content_type = models.ForeignKey(ContentType, null=True)
     urlobj_id = models.PositiveIntegerField(null=True)
