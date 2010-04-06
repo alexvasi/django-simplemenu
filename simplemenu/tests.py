@@ -93,3 +93,102 @@ class RegistryTests(TestCase):
         self.assertEqual(p[1].name(), 'Url name')
         self.assertEqual(p[2].name(), 'Phony view')
         self.assertEqual(p[3].name(), 'PHONY NAME')
+
+class MenuItemTests(TestCase):
+    def test_get_absolute_url(self):
+        item1 = MenuItem(name='item1', urlstr='/item1/')
+        self.assertEqual(item1.get_absolute_url(), '/item1/')
+        item1.save()
+        item2 = MenuItem(urlobj=item1)
+        self.assertEqual(item2.get_absolute_url(), '/item1/')
+
+    def test_pages(self):
+        item = MenuItem(urlstr='/url/')
+        self.assertEqual(item.page.urlstr, '/url/')
+        self.assertEqual(item.page.urlobj, None)
+
+        foo = MenuItem(name='foo', urlstr='/foo/')
+        item.page = foo
+        self.assertEqual(item.urlstr, '')
+        self.assertEqual(item.urlobj, foo)
+
+    def test_creating_and_rank(self):
+        item1 = MenuItem(name='1', urlstr='/1/')
+        item1.save()
+        self.assertEqual(item1.rank, 0)
+        self.assert_(item1.is_first())
+        self.assert_(item1.is_last())
+
+        item2 = MenuItem(name='2', urlstr='/2/')
+        item2.save()
+        self.assertEqual(item2.rank, 1)
+        self.failIf(item2.is_first())
+        self.assert_(item2.is_last())
+        self.failIf(item1.is_last())
+        self.assert_(item1.is_first())
+
+        item3 = MenuItem(name='3', urlstr='/3/')
+        item3.save()
+        self.assertEqual(item3.rank, 2)
+        self.failIf(item2.is_first())
+        self.failIf(item2.is_last())
+
+    def test_phony_changing_rank(self):
+        item_a = MenuItem(name='a', urlstr='/a/')
+        item_a.save()
+        self.assertEqual(item_a.rank, 0)
+        item_a.increase_rank()
+        self.assertEqual(item_a.rank, 0)
+        item_a = MenuItem.objects.get(id=item_a.id)
+        self.assertEqual(item_a.rank, 0)
+        item_a.decrease_rank()
+        self.assertEqual(item_a.rank, 0)
+
+    def test_changing_rank(self):
+        item_a = MenuItem(name='a', urlstr='/a/')
+        item_a.save()
+        item_b = MenuItem(name='b', urlstr='/b/')
+        item_b.save()
+        item_c = MenuItem(name='c', urlstr='/c/')
+        item_c.save()
+        self.assertEqual(item_a.rank, 0)
+        self.assertEqual(item_b.rank, 1)
+        self.assertEqual(item_c.rank, 2)
+
+        item_a.increase_rank()
+        item_a.increase_rank()
+        item_a = MenuItem.objects.get(id=item_a.id)
+        item_b = MenuItem.objects.get(id=item_b.id)
+        item_c = MenuItem.objects.get(id=item_c.id)
+        self.assertEqual(item_b.rank, 0)
+        self.assertEqual(item_c.rank, 1)
+        self.assertEqual(item_a.rank, 2)
+
+        item_c.decrease_rank()
+        item_a = MenuItem.objects.get(id=item_a.id)
+        item_b = MenuItem.objects.get(id=item_b.id)
+        item_c = MenuItem.objects.get(id=item_c.id)
+        self.assertEqual(item_c.rank, 0)
+        self.assertEqual(item_b.rank, 1)
+        self.assertEqual(item_a.rank, 2)
+
+    def test_changing_rank_after_deletion(self):
+        item_a = MenuItem(name='a', urlstr='/a/')
+        item_a.save()
+        item_b = MenuItem(name='b', urlstr='/b/')
+        item_b.save()
+        item_c = MenuItem(name='c', urlstr='/c/')
+        item_c.save()
+
+        item_b.delete()
+        item_c.decrease_rank()
+        item_a = MenuItem.objects.get(id=item_a.id)
+        item_c = MenuItem.objects.get(id=item_c.id)
+        self.assertEqual(item_c.rank, 0)
+        self.assertEqual(item_a.rank, 2)
+
+        item_c.increase_rank()
+        item_a = MenuItem.objects.get(id=item_a.id)
+        item_c = MenuItem.objects.get(id=item_c.id)
+        self.assertEqual(item_a.rank, 0)
+        self.assertEqual(item_c.rank, 2)
