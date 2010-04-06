@@ -1,8 +1,5 @@
-import types
-
 from django.contrib.contenttypes import generic
 from django.contrib.contenttypes.models import ContentType
-from django.core.urlresolvers import reverse
 from django.db import models
 
 from simplemenu.pages import PageWrapper
@@ -31,12 +28,7 @@ class MenuItem(models.Model):
         super(MenuItem, self).save(*args, **kwargs)
 
     def get_absolute_url(self):
-        if self.urlobj:
-            return self.urlobj.get_absolute_url()
-        elif "/" in self.urlstr:
-            return self.urlstr
-        else:
-            return reverse(self.urlstr)
+        return self.get_page().url()
 
     def get_page(self):
         return PageWrapper(self.urlstr or self.urlobj)
