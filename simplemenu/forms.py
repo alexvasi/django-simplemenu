@@ -1,10 +1,11 @@
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 
 from simplemenu.models import MenuItem
 from simplemenu.pages import get_registered_pages
 
 class MenuItemForm(forms.ModelForm):
-    page = forms.ChoiceField()
+    page = forms.ChoiceField(label=_('Page'))
 
     class Meta:
         model = MenuItem
