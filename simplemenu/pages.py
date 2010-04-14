@@ -7,9 +7,28 @@ from django.db.models.query import QuerySet
 registry = []
 
 def register(*args):
+    """
+    Register urls, views, model instances and QuerySets to be potential
+    pages for menu items.
+    
+    Example::
+
+        import simplemenu
+        simplemenu.register(
+            '/some/url/',
+            'package.module.view',
+            ('/some_url_or_view_with_name/', 'name'),
+            FlatPage.objects.all(),
+            Products.objects.get(pk=1),
+        )
+    """
     registry.extend(args)
 
 class PageWrapper(object):
+    """
+    A helper-object to wrap the pages, which might be django models or
+    strings.
+    """
     def __init__(self, urlobj_or_str, name=None):
         if isinstance(urlobj_or_str, types.StringTypes):
             self.urlobj = None
@@ -41,6 +60,9 @@ class PageWrapper(object):
         return url
 
     def strkey(self):
+        """
+        Generates somewhat unique string id of the wrappee.
+        """
         if self.urlobj:
             return "%s.%s.pk%s" % (self.urlobj.__module__,
                                    self.urlobj.__class__.__name__,
@@ -49,6 +71,10 @@ class PageWrapper(object):
             return self.urlstr
 
 def get_registered_pages():
+    """
+    Returns all registered pages wrapped in PageWrapper helper-object
+    evaluating all QuerySets along the way.
+    """
     pages = []
     for reg in map(copy.deepcopy, registry):
         if isinstance(reg, QuerySet):

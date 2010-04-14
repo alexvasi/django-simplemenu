@@ -19,7 +19,7 @@ class MenuItemAdmin(admin.ModelAdmin):
         obj.save()
 
     def item_name(self, obj):
-        # just to forbid to sort by name
+        # just to forbid sorting by name
         return obj.name
     item_name.short_description = ugettext_lazy('Item caption')
 
@@ -28,6 +28,9 @@ class MenuItemAdmin(admin.ModelAdmin):
     page.short_description = ugettext_lazy('Page')
 
     def move(sefl, obj):
+        """
+        Returns html with links to move_up and move_down views.
+        """
         button = u'<a href="%s"><img src="%simg/admin/arrow-%s.gif" /> %s</a>'
         prefix = settings.ADMIN_MEDIA_PREFIX
         
@@ -47,6 +50,10 @@ class MenuItemAdmin(admin.ModelAdmin):
         return urls + super(MenuItemAdmin, self).get_urls()
 
     def move_up(self, request, item_pk):
+        """
+        Decrease rank (change ordering) of the menu item with
+        id=``item_pk``.
+        """
         if self.has_change_permission(request):
             item = get_object_or_404(MenuItem, pk=item_pk)
             item.decrease_rank()
@@ -55,6 +62,10 @@ class MenuItemAdmin(admin.ModelAdmin):
         return redirect('admin:simplemenu_menuitem_changelist')
 
     def move_down(self, request, item_pk):
+        """
+        Increase rank (change ordering) of the menu item with
+        id=``item_pk``.
+        """
         if self.has_change_permission(request):
             item = get_object_or_404(MenuItem, pk=item_pk)
             item.increase_rank()

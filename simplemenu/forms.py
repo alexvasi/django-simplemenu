@@ -25,6 +25,10 @@ class MenuItemForm(forms.ModelForm):
         self.fields['page'].choices = self.page_choices()
 
     def page_choices(self):
+        """
+        Returns list of 2-tuples ('page unique key', 'page name')
+        to fill the ChoiceField.
+        """
         choices = []
         for p in self._registered_pages_cache:
             choices.append((p.strkey(), p.name()))
@@ -32,6 +36,10 @@ class MenuItemForm(forms.ModelForm):
         return choices
 
     def selected_page(self):
+        """
+        Returns ``simplemenu.pages.PageWrapper`` for the selected from
+        ChoiceField page if form is bound.
+        """
         key = self.cleaned_data['page']
         for p in self._registered_pages_cache:
             if p.strkey() == key:

@@ -13,6 +13,22 @@ class SimplemenuNode(Node):
 
 @register.tag
 def get_simplemenu(parser, token):
+    """
+    Loads all ``simplemenu.models.MenuItems`` and stores them in a
+    context variable.
+
+    Usage::
+
+        {% get_simplemenu as [varname] %}
+
+    Example::
+
+        {% get_simplemenu as menu_items %}
+        {% for item in menu_items %}
+          <a href="{{ item.page.url }}">{{ item.name }}</a>
+        {% endfor %}
+
+    """
     bits = token.split_contents()
     if len(bits) != 3 or bits[1] != 'as':
         raise TemplateSyntaxError("Incorrect tag arguments. "
