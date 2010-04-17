@@ -43,9 +43,10 @@ class MenuItemAdmin(admin.ModelAdmin):
     move.short_description = ugettext_lazy('Move')
 
     def get_urls(self):
+        admin_view = self.admin_site.admin_view
         urls = patterns('',
-            (r'^(?P<item_pk>\d+)/move_up/$', self.admin_site.admin_view(self.move_up)),
-            (r'^(?P<item_pk>\d+)/move_down/$', self.admin_site.admin_view(self.move_down)),
+            (r'^(?P<item_pk>\d+)/move_up/$', admin_view(self.move_up)),
+            (r'^(?P<item_pk>\d+)/move_down/$', admin_view(self.move_down)),
         )
         return urls + super(MenuItemAdmin, self).get_urls()
 
