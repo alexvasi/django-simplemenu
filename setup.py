@@ -1,8 +1,7 @@
 from distutils.core import setup
-import simplemenu
 
 setup(name='django-simplemenu',
-      version=simplemenu.__version__,
+      version='0.1.0',
       url='http://github.com/alexvasi/django-simplemenu',
       license='BSD',
       description='Menu app for Django with ordering and ability to link menu item with model instance, view or URL.',
